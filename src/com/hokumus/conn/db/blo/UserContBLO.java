@@ -3,6 +3,7 @@ package com.hokumus.conn.db.blo;
 import java.util.List;
 
 import com.hokumus.conn.db.doa.UserTableManageDAO;
+import com.hokumus.conn.db.model.ReturnType;
 import com.hokumus.conn.db.model.User;
 
 public class UserContBLO {
@@ -45,21 +46,39 @@ public class UserContBLO {
 		return dao.insertUser(usr);
 
 	}
-	
+
 	public Boolean updateUser(List<User> liste) throws Exception {
 		boolean durum = false;
 		for (User user : liste) {
-			if(user.getId()==0) {
+			if (user.getId() == 0) {
 				durum = dao.insertUser(user);
-			}
-			else {
+			} else {
 				durum = dao.updateUser(user);
 			}
-			
+
 		}
-		
-		
+
 		return durum;
+	}
+
+	public Object[] deleteUserForId(User delUser) {
+		try {
+			Object[] sonuc = null;
+
+			Boolean durum = dao.deleteUser(delUser.getId());
+
+			if (durum) {
+				return new Object[] { ReturnType.ISLEM_BASARILI, "Kullanýcý Baþarýyla Silindi" };
+			} else
+				return new Object[] { ReturnType.ISLEM_BASARISIZ, "Kullanýcý Silinemedi" };
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			return new Object[] { ReturnType.HATA_OLUSTU, "Silme iþleminde Bir hata oldu ", e.getMessage() };
+
+		} finally {
+			System.out.println("dfskdlfjsdlkj");
+		}
 	}
 
 }

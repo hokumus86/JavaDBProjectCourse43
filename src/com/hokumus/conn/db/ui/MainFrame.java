@@ -13,6 +13,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableModel;
 
 import com.hokumus.conn.db.blo.UserContBLO;
+import com.hokumus.conn.db.model.ReturnType;
 import com.hokumus.conn.db.model.User;
 import com.hokumus.conn.db.util.Utils;
 import javax.swing.JTextField;
@@ -55,7 +56,7 @@ public class MainFrame extends JFrame {
 						JOptionPane.showMessageDialog(MainFrame.this, "Kullanýcý Eklendi..!");
 						tabloDoldur(e);
 					}
-						
+
 					else {
 						JOptionPane.showMessageDialog(MainFrame.this, "Kullanýcý Eklenemedi..!");
 					}
@@ -75,14 +76,13 @@ public class MainFrame extends JFrame {
 				tabloDoldur(e);
 			}
 		});
-		
-		
+
 		getBtnUpdate().addActionListener(new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				List<User > liste = new ArrayList<User>();
+				List<User> liste = new ArrayList<User>();
 				User temp = new User();
 				temp.setId(selectedId);
 				temp.setName(getTxtName().getText());
@@ -95,8 +95,31 @@ public class MainFrame extends JFrame {
 				} catch (Exception e2) {
 					e2.printStackTrace();
 				}
-				
-				
+
+			}
+		});
+
+		getBtnDelete().addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				UserContBLO blo = new UserContBLO();
+				// selectedId = 150L; kata kulle var
+				User delUser = new User();
+				delUser.setName(getTxtName().getText());
+				delUser.setUserName(getTblUsr().getValueAt(getTblUsr().getSelectedRow(), 0).toString());
+				delUser.setPassword(getTblUsr().getValueAt(getTblUsr().getSelectedRow(), 1).toString());
+				delUser.setId(Long.parseLong(getTblUsr().getValueAt(getTblUsr().getSelectedRow(), 3).toString()));
+				Object[] gelen = blo.deleteUserForId(delUser);
+				if (((ReturnType) gelen[0]) == ReturnType.ISLEM_BASARILI) {
+					JOptionPane.showMessageDialog(MainFrame.this, gelen[1].toString());
+				} else if (((ReturnType) gelen[0]) == ReturnType.ISLEM_BASARISIZ) {
+					JOptionPane.showMessageDialog(MainFrame.this, gelen[1].toString());
+				} else if (((ReturnType) gelen[0]) == ReturnType.HATA_OLUSTU) {
+					JOptionPane.showMessageDialog(MainFrame.this, gelen[1].toString() +" " + gelen[2].toString());
+				}
+				tabloDoldur(e);
+
 			}
 		});
 
@@ -106,7 +129,7 @@ public class MainFrame extends JFrame {
 		UserContBLO blo = new UserContBLO();
 		try {
 			List<User> liste = blo.getAllUser();
-			String[] columnNames = new String[] { "Kullanýcý Adý", "Þifre", "Ýsim","ID" };
+			String[] columnNames = new String[] { "Kullanýcý Adý", "Þifre", "Ýsim", "ID" };
 			String[][] data = new String[liste.size()][columnNames.length];
 			for (int i = 0; i < liste.size(); i++) {
 				data[i][0] = liste.get(i).getUserName();
@@ -117,7 +140,7 @@ public class MainFrame extends JFrame {
 			}
 			DefaultTableModel model = new DefaultTableModel(data, columnNames);
 			getTblUsr().setModel(model);
-			
+
 		} catch (Exception e2) {
 			e2.printStackTrace();
 			JOptionPane.showMessageDialog(MainFrame.this, "Kullanýcýlar Listelenemedi..!");
@@ -140,6 +163,7 @@ public class MainFrame extends JFrame {
 		getContentPane().add(getLblIsim());
 		getContentPane().add(getBtnKaydet());
 		getContentPane().add(getBtnUpdate());
+		getContentPane().add(getBtnDelete());
 
 	}
 
@@ -152,15 +176,16 @@ public class MainFrame extends JFrame {
 		return scrollUsr;
 	}
 
-	
 	private Long selectedId;
+	private JButton btnDelete;
+
 	private JTable getTblUsr() {
 		if (tblUsr == null) {
 			tblUsr = new JTable();
 			tblUsr.addMouseListener(new MouseAdapter() {
 				@Override
 				public void mouseClicked(MouseEvent arg0) {
-					int row =getTblUsr().getSelectedRow();
+					int row = getTblUsr().getSelectedRow();
 					getTxtKadi().setText(getTblUsr().getValueAt(row, 0).toString());
 					getTxtSifre().setText(getTblUsr().getValueAt(row, 1).toString());
 					getTxtName().setText(getTblUsr().getValueAt(row, 2).toString());
@@ -238,11 +263,20 @@ public class MainFrame extends JFrame {
 		}
 		return btnKaydet;
 	}
+
 	private JButton getBtnUpdate() {
 		if (btnUpdate == null) {
 			btnUpdate = new JButton("G\u00FCncelle");
 			btnUpdate.setBounds(278, 114, 91, 23);
 		}
 		return btnUpdate;
+	}
+
+	private JButton getBtnDelete() {
+		if (btnDelete == null) {
+			btnDelete = new JButton("Kullan\u0131c\u0131 Silme");
+			btnDelete.setBounds(235, 375, 119, 23);
+		}
+		return btnDelete;
 	}
 }

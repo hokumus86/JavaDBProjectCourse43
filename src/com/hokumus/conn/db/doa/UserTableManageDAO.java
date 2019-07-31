@@ -49,8 +49,8 @@ public class UserTableManageDAO {
 	public boolean insertUser(User usr) throws Exception {
 		Connection conn = DbConnector.getConnection();
 		Statement stmt = conn.createStatement();
-		String sql = "insert into usr(id, username,password,name) values( (Select max(id) +1 from usr) ,'"
-				+ usr.getUserName() + "', '" + usr.getPassword() + "', '" + usr.getName() + "' ) ";
+		String sql = "insert into usr(id, username,password,name) values(nextval('seq_usr') ,'" + usr.getUserName()
+				+ "', '" + usr.getPassword() + "', '" + usr.getName() + "' ) ";
 		int count = stmt.executeUpdate(sql);
 		System.out.println(sql);
 
@@ -64,6 +64,17 @@ public class UserTableManageDAO {
 		Statement stmt = conn.createStatement();
 		String sql = "update  usr set  username = '" + temp.getUserName() + "'  , password = '" + temp.getPassword()
 				+ "'  , name = '" + temp.getName() + "'  where id = " + temp.getId();
+		int count = stmt.executeUpdate(sql);
+		System.out.println(sql);
+
+		return count > 0;
+	}
+
+	public Boolean deleteUser(Long id) throws Exception {
+
+		Connection conn = DbConnector.getConnection();
+		Statement stmt = conn.createStatement();
+		String sql = "delete from usr  where id=" + id;
 		int count = stmt.executeUpdate(sql);
 		System.out.println(sql);
 
